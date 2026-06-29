@@ -1,0 +1,40 @@
+name: whatsapp_bot
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: whatsapp_saas_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: whatsapp_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d whatsapp_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: whatsapp_saas_web
+    restart: always
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/whatsapp_db
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN}
+      WHATSAPP_API_VERSION: ${WHATSAPP_API_VERSION}
+    volumes:
+      - ./.env:/app/.env:ro
+
+volumes:
+  postgres_data:
