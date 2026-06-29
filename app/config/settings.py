@@ -25,6 +25,9 @@ class Settings(BaseSettings):
         # Convert postgresql:// to postgresql+asyncpg://
         if v.startswith("postgresql://"):
             v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # Convert sslmode=... to ssl=... because asyncpg expects "ssl" instead of "sslmode"
+        if "sslmode=" in v:
+            v = v.replace("sslmode=", "ssl=")
         return v
 
     # WhatsApp API General Settings
