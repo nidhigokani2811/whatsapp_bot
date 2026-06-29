@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: whatsapp-saas-web
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_API_VERSION
+        value: v20.0
